@@ -11,12 +11,13 @@ class CreateTransactionForm extends AsyncForm{
   constructor( element ) {
     super(element)
     this.element = element;
-    this.renderAccountsList()
+    this.renderAccountsList();
 
   }
 
   update() {
-    
+    this.renderAccountsList();
+         
   }
 
   /**

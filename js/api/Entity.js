@@ -64,4 +64,4 @@ let options = {}
   }
 }
 Entity.URL = '';
-Entity.HOST = 'http://bhj-diploma.u-w.me';
+Entity.HOST = 'https://bhj-diploma.herokuapp.com/';

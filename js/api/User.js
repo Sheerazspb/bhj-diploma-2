@@ -39,7 +39,7 @@ class User {
    * */
   static fetch(data, callback = f => f) {
     let testrequest = {
-      url: "http://bhj-diploma.u-w.me/user/current",
+      url: "https://bhj-diploma.herokuapp.com/user/current",
       method: "GET",
     };
     let response = createRequest(testrequest, function(response){
@@ -56,7 +56,7 @@ class User {
    * */
   static login(data, callback = f => f) {
     let testrequest = {
-      url: "http://bhj-diploma.u-w.me/user/register",
+      url: "https://bhj-diploma.herokuapp.com/user/register",
       method: "POST",
       body: data,
       mode: "cors",
@@ -76,7 +76,7 @@ class User {
    * */
   static register(data, callback = f => f) {
     let testrequest = {
-      url: "http://bhj-diploma.u-w.me/user/register",
+      url: "https://bhj-diploma.herokuapp.com/user/register",
       method: "POST",
       body: data,
       mode: "cors",
