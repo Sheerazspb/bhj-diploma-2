@@ -11,13 +11,13 @@ class TransactionsWidget {
    * необходимо выкинуть ошибку.
    * */
   constructor( element ) {
-    if(element) {
+    if (element) {
       this.element = element;
-    } else {
-      console.log('error') 
-    };
-    this.registerEvents()
-
+      this.registerEvents();
+    } else
+     {
+       throw new Error('Элемент не найден');
+     }
   }
   /**
    * Регистрирует обработчики нажатия на
@@ -26,16 +26,12 @@ class TransactionsWidget {
    * экземпляра окна
    * */
   registerEvents() {
-    const button_income = document.querySelector('.create-income-button');
-    button_income.addEventListener('click', () => {
-      let modal = App.getModal('newIncome');
-      modal.open()
-      
-    })
-    const button_expense = document.querySelector('.create-expense-button');
-    button_expense.addEventListener('click', () => {
-      let modal = App.getModal('newExpense');
-      modal.open()
-    })
+    const createIncButton = this.element.querySelector( '.create-income-button' );
+    const createExpButton = this.element.querySelector( '.create-expense-button' );
+    const incModal = new Modal( document.querySelector( '#modal-new-income' ));
+    const expModal = new Modal( document.querySelector( '#modal-new-expense' ));
+
+    createIncButton.addEventListener( 'click', () => incModal.open());
+    createExpButton.addEventListener( 'click', () => expModal.open());
   }
 }

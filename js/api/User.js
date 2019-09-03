@@ -9,8 +9,8 @@ class User {
    * Устанавливает текущего пользователя в
    * локальном хранилище.
    * */
-  static setCurrent(data) {
-    localStorage.setItem("user", JSON.stringify(data.user));
+  static setCurrent(user) {
+    localStorage['user'] = JSON.stringify(user);
   }
 
   /**
@@ -18,7 +18,7 @@ class User {
    * пользователе из локального хранилища.
    * */
   static unsetCurrent() {
-    localStorage.removeItem('user');
+    delete localStorage['user'];
   }
 
   /**
@@ -26,25 +26,29 @@ class User {
    * из локального хранилища
    * */
   static current() {
-    try {
-      return JSON.parse(localStorage.getItem("user"));
-    } catch (e) {
-      return null;
-    }
+    const data = localStorage['user'];
+    return data && JSON.parse(data);
   }
 
   /**
    * Получает информацию о текущем
    * авторизованном пользователе.
    * */
-  static fetch(data, callback = f => f) {
-    let testrequest = {
-      url: "https://bhj-diploma.herokuapp.com/user/current",
-      method: "GET",
-    };
-    let response = createRequest(testrequest, function(response){
-      User.setCurrent(response);
-      callback(response);
+  static fetch( data, callback = f => f ) {
+    return createRequest({
+      url: this.HOST + this.URL + '/current',
+      method: 'GET',
+      responseType: 'json',
+      data,
+      callback: (err, response) => {
+        if (response && response.user) {
+          this.setCurrent(response.user);
+        }
+        else {
+          this.unsetCurrent();
+        }
+        callback.call(this, err, response);
+      }
     });
   }
 
@@ -54,17 +58,18 @@ class User {
    * сохранить пользователя через метод
    * User.setCurrent.
    * */
-  static login(data, callback = f => f) {
-    let testrequest = {
-      url: "https://bhj-diploma.herokuapp.com/user/register",
-      method: "POST",
-      body: data,
-      mode: "cors",
-        };
-    let response = createRequest(testrequest, function(data){
-      console.log(data)
-      User.setCurrent(data);
-      callback(data);
+  static login( data, callback = f => f ) {
+    return createRequest({
+      url: this.HOST + this.URL + '/login',
+      method: 'POST',
+      responseType: 'json',
+      data,
+      callback: (err, response) => {
+        if (response && response.user) {
+          this.setCurrent(response.user);
+        }
+        callback.call(this, err, response);
+      }
     });
   }
 
@@ -74,26 +79,40 @@ class User {
    * сохранить пользователя через метод
    * User.setCurrent.
    * */
-  static register(data, callback = f => f) {
-    let testrequest = {
-      url: "https://bhj-diploma.herokuapp.com/user/register",
-      method: "POST",
-      body: data,
-      mode: "cors",
-        };
-    let response = createRequest(testrequest, function(data){
-      console.log(data)
-      User.setCurrent(data);
-      callback(data);
+  static register( data, callback = f => f ) {
+    return createRequest({
+      url: this.HOST + this.URL + '/register',
+      method: 'POST',
+      responseType: 'json',
+      data,
+      callback: (err, response) => {
+        if (response && response.user) {
+          this.setCurrent(response.user);
+        }
+        callback.call(this, err, response);
+      }
     });
   }
-
 
   /**
    * Производит выход из приложения. После успешного
    * выхода необходимо вызвать метод User.unsetCurrent
    * */
-  static logout(data, callback = f => f) {
-    User.unsetCurrent()
+  static logout( data, callback = f => f ) {
+    return createRequest({
+      url: this.HOST + this.URL + '/logout',
+      method: 'POST',
+      responseType: 'json',
+      data,
+      callback: (err, response) => {
+        if (response && response.success) {
+          this.unsetCurrent();
+        }
+        callback.call(this, err, response);
+      }
+    });
   }
 }
+
+User.HOST = Entity.HOST;
+User.URL = '/user';

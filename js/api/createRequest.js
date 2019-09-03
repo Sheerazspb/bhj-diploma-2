@@ -2,34 +2,64 @@
  * Основная функция для совершения запросов
  * на сервер.
  * */
-const createRequest = async function(options = {} , callback) {
+const createRequest = (options = {}) => {
 
-  let fetchrequest ={}
-  fetchrequest.method = options.method;
-  fetchrequest.credentials = "include";
-  if (options.hasOwnProperty("body")){
-    let form_data = new FormData();
-    for ( let key in options.body ) {
-        form_data.append(key, options.body[key]);
-    }
-    fetchrequest.body = form_data;
+  const f = function () {},
+    { method = 'GET',
+      headers = {},
+      success = f,
+      error = f,
+      callback = f,
+      responseType,
+      async = true,
+      data = {}} = options,
+    xhr = new XMLHttpRequest;
+
+  let {url} = options;
+
+  if (responseType) {
+    xhr.responseType = responseType;
   }
-  
-  fetchrequest.mode = "cors";
-  
-  
-  console.log("fetchrequest" + fetchrequest);
-  console.log("options.url" + options.url);
-  fetch(options.url, fetchrequest)
-      .then(function(response) {
-        return response.json()
-      })
-      .then(function(data) {
-        console.log("data" + data);
-        callback(data)
-      })
-      .catch(function(err) {
-        console.log("Something went wrong!", err);
-      });
+
+  xhr.onload = function() {
+    success.call(this, xhr.response);
+    callback.call(this, null, xhr.response);
+  };
+  xhr.onerror = function() {
+    console.log('!!!');
+    const err = new Error('Request Error');
+    error.call(this, err);
+    callback.call(this, err);
+  };
+
+  xhr.withCredentials = true;
+
+  let requestData;
+
+  if (method === 'GET') {
+    const urlParams = Object.entries( data )
+      .map(([key, value]) => `${key}=${value}` )
+      .join('&');
+    if (urlParams) {
+      url += '?' + urlParams;
     }
-  
+  }
+  else {
+    requestData = Object.entries(data)
+      .reduce(( target, [key, value]) => {
+        target.append(key, value);
+        return target;
+      }, new FormData);
+  }
+  try {
+    xhr.open(method, url, async);
+    xhr.send(requestData);
+  }
+  catch ( err ) {
+    error.call(this, err);
+    callback.call(this, err);
+    return xhr;
+  }
+
+  return xhr;
+  };

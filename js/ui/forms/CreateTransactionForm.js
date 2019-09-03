@@ -3,21 +3,18 @@
  * создания новой транзакции
  * Наследуется от AsyncForm
  * */
-class CreateTransactionForm extends AsyncForm{
+class CreateTransactionForm extends AsyncForm {
   /**
    * Вызывает родительский конструктор и
    * метод renderAccountsList
    * */
   constructor( element ) {
-    super(element)
-    this.element = element;
+    super( element );
     this.renderAccountsList();
-
   }
 
   update() {
     this.renderAccountsList();
-         
   }
 
   /**
@@ -25,23 +22,18 @@ class CreateTransactionForm extends AsyncForm{
    * Обновляет в форме всплывающего окна выпадающий список
    * */
   renderAccountsList() {
-    let account = Account.list({_method: "GET"},(accountsList) => {
-      
-      console.log(accountsList.data);
-      for (let i = 0; i < accountsList.data.length; i++){
-        let data = accountsList.data[i]
-        console.log(data.id +"here")
-        this.element.querySelector('.accounts-select').innerHTML += `
-          <option value="${data.id}">${data.name}</option>
-        `;
-      }
-     
-    });
+    const accoutSelect = this.element.querySelector('.accounts-select'),
+      renderItem = item => {accoutSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;}
 
-  }  
-    
-  
-  
+    Account.list({}, (err, response) => {
+      if (response.data) {
+        accoutSelect.innerHTML = '';
+        response.data.forEach( renderItem );
+      } else {
+        return;
+      }
+    });
+  }
 
   /**
    * Создаёт новую транзакцию (доход или расход)
@@ -50,23 +42,18 @@ class CreateTransactionForm extends AsyncForm{
    * в котором находится форма
    * */
   onSubmit( options ) {
-  let data = {};
-	data.body = options;
-	//data.method = options._method;
-  data.method = "POST";
-  
-	 const result = Transaction.create(data, (res) => {
-    
-    let modalInc = App.getModal('newIncome');
-    
-    modalInc.close();
-    let modalExp = App.getModal('newExpense');
-    
-    modalExp.close();
-    
-    App.update();
-    console.log(res)
+    Transaction.create(options.data, ( err, response ) => {
+      if ( !response.success ) {
+        return
+      }
+      App.getWidget('accounts').update();
+      this.element.reset();
+      const {type} = options.data;
+      const modalName = 'new' + type[ 0 ].toUpperCase() + type.substr( 1 );
+      const modal = App.getModal(modalName);
+      modal.close();
 
-	 }); 
-	}
+      App.update();
+    });
+  }
 }

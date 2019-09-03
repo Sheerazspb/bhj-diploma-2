@@ -18,15 +18,11 @@ class Sidebar {
    * при нажатии на кнопку .sidebar-toggle
    * */
   static initToggleButton() {
-    const sidebar_toggle = document.querySelector('.sidebar-toggle');
-    const sidebar_open = document.querySelector('body');
-    const sidebar_collapse = document.querySelector('body');
-    sidebar_toggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      
-      sidebar_open.classList.toggle('sidebar-open');
-      
-      sidebar_collapse.classList.toggle('sidebar-collapse');
+    const sidebarToggle = document.querySelector( '.sidebar-toggle' );
+    const sidebar = document.querySelector( '.sidebar-mini' );
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('sidebar-open');
+      sidebar.classList.toggle('sidebar-collapse');
     });
   }
 
@@ -38,25 +34,21 @@ class Sidebar {
    * выходу устанавливает App.setState( 'init' )
    * */
   static initAuthLinks() {
-    const login_button = document.querySelector('.menu-item_login');
-    const register_button = document.querySelector('.menu-item_register');
-    const logout_button = document.querySelector('.menu-item_logout')
-    let modal;
-    login_button.addEventListener('click', () => {
-      modal = App.getModal('login');
-      modal.open();
-    })
-    register_button.addEventListener('click',() => {
-      modal = App.getModal('register');
-      modal.open();
-    })
-    logout_button.addEventListener('click', () => {
-      User.logout();
-      
-        App.setState( 'init' )
-      
-    })
+    const loginButton = document.querySelector('.menu-item_login a');
+    const registerButton = document.querySelector('.menu-item_register a');
+    const logoutButton = document.querySelector('.menu-item_logout a');
+    const loginModal = App.getModal('login');
+    const registerModal = App.getModal('register');
+
+    loginButton.addEventListener('click', () => loginModal.open());
+    registerButton.addEventListener('click', () => registerModal.open());
+    logoutButton.addEventListener('click', () =>
+      User.logout({}, (err, response) => {
+        if (response && response.success) {
+          App.setState('init');
+        }
+      })
+    );
   }
-  
 
 }
